@@ -13,6 +13,13 @@ describe('buildScaffold', () => {
     )
   })
 
+  it('escapes quotes, dollars, and backticks in the title', () => {
+    const title = 'Say "hi" $HOME `x` \\'
+    const result = buildScaffold({ locale: 'en_US', slug: 'q', title, now })
+
+    expect(result.content).toContain(`title: ${JSON.stringify(title)}\n`)
+  })
+
   it('falls back to the slug as title', () => {
     const result = buildScaffold({ locale: 'ja_JP', slug: 'hello', now })
 

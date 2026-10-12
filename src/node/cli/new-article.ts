@@ -3,11 +3,13 @@ import path from "path";
 import { parseArgs } from "util";
 import { buildScaffold } from "./scaffold";
 
+// `make new` passes its values through NEW_* environment variables so that
+// quotes, `$`, and backticks in a title never reach a shell. Flags override.
 const { values } = parseArgs({
   options: {
-    locale: { type: "string", default: "en_US" },
-    slug: { type: "string", default: "" },
-    title: { type: "string", default: "" },
+    locale: { type: "string", default: process.env.NEW_LOCALE || "en_US" },
+    slug: { type: "string", default: process.env.NEW_SLUG ?? "" },
+    title: { type: "string", default: process.env.NEW_TITLE ?? "" },
   },
 });
 

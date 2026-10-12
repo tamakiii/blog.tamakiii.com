@@ -33,7 +33,7 @@ description: "One-line summary shown in the article list"
 Body in GitHub-flavored Markdown.
 ```
 
-`date` is a quoted `YYYY-MM-DD` string. A missing `title` falls back to the slug, and missing `tags` or `description` are treated as empty.
+`date` is a quoted `YYYY-MM-DD` string. `title` is required and the build rejects an article without one; missing `tags` or `description` are treated as empty.
 
 ## Local development
 

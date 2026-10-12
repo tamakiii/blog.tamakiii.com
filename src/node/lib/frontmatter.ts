@@ -6,6 +6,16 @@ import type {
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+function isCalendarDate(value: string): boolean {
+  const [y, m, d] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return (
+    date.getUTCFullYear() === y &&
+    date.getUTCMonth() === m - 1 &&
+    date.getUTCDate() === d
+  );
+}
+
 /**
  * Raised when an article's frontmatter breaks a build-time rule.
  * The message names the file and the rule so the author can fix it directly.
@@ -37,7 +47,7 @@ export function validateFrontmatter(
       '`date` was parsed as a YAML timestamp; quote it, e.g. date: "2026-01-03"'
     );
   }
-  if (typeof date !== "string" || !DATE_PATTERN.test(date)) {
+  if (typeof date !== "string" || !DATE_PATTERN.test(date) || !isCalendarDate(date)) {
     throw new FrontmatterError(
       file,
       '`date` must be a string in YYYY-MM-DD form, e.g. date: "2026-01-03"'
