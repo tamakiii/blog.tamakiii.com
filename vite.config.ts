@@ -16,5 +16,18 @@ export default defineConfig({
   build: {
     outDir: "docs",
     emptyOutDir: true,
+    rolldownOptions: {
+      output: {
+        // Rendering stays synchronous (prerender parity), so the heavy markdown pipeline is split by package, not by import().
+        codeSplitting: {
+          groups: [
+            {
+              name: "markdown-vendor",
+              test: /node_modules[\\/](lowlight|highlight\.js|unified|rehype-[^\\/]+|remark-[^\\/]+|react-markdown|hast-[^\\/]+|mdast-[^\\/]+|micromark[^\\/]*|unist-[^\\/]+)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
   },
 });
