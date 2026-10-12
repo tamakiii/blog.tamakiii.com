@@ -1,10 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import { useArticleIndex } from "../hooks/useArticleIndex";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
+import { filterAndSortArticles } from "../lib/article-filter";
+import { findTags, listLocales } from "../../shared/article-index";
 import {
-  filterAndSortArticles,
-  findTags,
-  listLocales,
-} from "../lib/article-filter";
+  DEFAULT_LANG,
+  TAGS_HEADING,
+  localeToLang,
+  tagHeading,
+} from "../../shared/site";
 import NotFound from "./NotFound";
 import TagLink from "./TagLink";
 
@@ -15,6 +19,21 @@ interface ArticleListProps {
 export default function ArticleList({ showTags }: ArticleListProps) {
   const { locale, tag } = useParams();
   const { index, loading, error } = useArticleIndex();
+
+  const unknownLocale = !!(index && locale && !listLocales(index).includes(locale));
+  const tagNames = index && tag ? findTags(index.tags, tag) : [];
+  const unknownTag = !!(index && tag && tagNames.length === 0);
+
+  // Same titles and languages the build writes into each list page; null while loading, on error, or when NotFound sets its own.
+  const heading = showTags
+    ? TAGS_HEADING
+    : tag
+      ? tagHeading(tagNames[0] ?? tag)
+      : (locale ?? "");
+  useDocumentMeta(
+    !index || unknownLocale || unknownTag ? null : heading,
+    locale && !showTags && !tag ? localeToLang(locale) : DEFAULT_LANG
+  );
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -29,7 +48,7 @@ export default function ArticleList({ showTags }: ArticleListProps) {
     const allTags = Object.keys(index.tags).sort();
     return (
       <div className="tag-list">
-        <h1>Tags</h1>
+        <h1>{TAGS_HEADING}</h1>
         <div className="tags">
           {allTags.map((t) => (
             <TagLink key={t} tag={t} />
@@ -39,12 +58,7 @@ export default function ArticleList({ showTags }: ArticleListProps) {
     );
   }
 
-  if (locale && !listLocales(index).includes(locale)) {
-    return <NotFound />;
-  }
-
-  const tagNames = tag ? findTags(index.tags, tag) : [];
-  if (tag && tagNames.length === 0) {
+  if (unknownLocale || unknownTag) {
     return <NotFound />;
   }
 
@@ -53,11 +67,7 @@ export default function ArticleList({ showTags }: ArticleListProps) {
   return (
     <div className="article-list">
       <h1>
-        {tag
-          ? `Articles tagged "${tagNames[0]}"`
-          : locale
-            ? `${locale}`
-            : "Articles"}
+        {tag ? tagHeading(tagNames[0]) : locale ? `${locale}` : "Articles"}
       </h1>
       {articles.length === 0 ? (
         <p>No articles found.</p>

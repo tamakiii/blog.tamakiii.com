@@ -16,6 +16,17 @@ export function localeToLang(locale: string): string {
   return language || DEFAULT_LANG;
 }
 
+/** Heading and title of the page listing every tag. */
+export const TAGS_HEADING = "Tags";
+
+/** Heading and title of the page shown for an unknown address. */
+export const NOT_FOUND_HEADING = "Not found";
+
+/** Heading and title of a tag page. */
+export function tagHeading(tag: string): string {
+  return `Articles tagged "${tag}"`;
+}
+
 /** Document title for a page; the site name alone for the root page. */
 export function pageTitle(title?: string): string {
   return title ? `${title} | ${SITE_NAME}` : SITE_NAME;

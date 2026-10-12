@@ -36,29 +36,36 @@ export function useArticle(articlePath: string) {
     const jsonPath = toFilePath(articlePath, "json");
     const mdPath = toFilePath(articlePath, "md");
 
+    // Abort when the path changes or the component unmounts, so a slow response for an earlier article cannot overwrite the current one.
+    const controller = new AbortController();
+    const { signal } = controller;
+
     setLoading(true);
     setError(null);
 
     Promise.all([
-      fetch(jsonPath).then((res) => {
+      fetch(jsonPath, { signal }).then((res) => {
         if (!res.ok) throw new Error(`Frontmatter not found: ${jsonPath}`);
         return res.json() as Promise<ArticleFrontmatter>;
       }),
-      fetch(mdPath).then((res) => {
+      fetch(mdPath, { signal }).then((res) => {
         if (!res.ok) throw new Error(`Article not found: ${mdPath}`);
         return res.text();
       }),
     ])
       .then(([frontmatter, rawContent]) => {
+        if (signal.aborted) return;
         const content = stripFrontmatter(rawContent);
         setArticle({ frontmatter, content });
+        setLoading(false);
       })
       .catch((err) => {
+        if (signal.aborted) return;
         setError(err);
-      })
-      .finally(() => {
         setLoading(false);
       });
+
+    return () => controller.abort();
   }, [articlePath, embedded]);
 
   return { article, loading, error };

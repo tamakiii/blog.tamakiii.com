@@ -1,14 +1,17 @@
 import type { ArticleIndex, ArticleIndexEntry } from "../../shared/article";
 import {
   DEFAULT_LANG,
+  NOT_FOUND_HEADING,
   SITE_NAME,
+  TAGS_HEADING,
   absoluteUrl,
   localeToLang,
   pageTitle,
+  tagHeading,
   tagSlug,
   tagPath,
 } from "../../shared/site";
-import { listLocales } from "../../browser/lib/article-filter";
+import { listLocales } from "../../shared/article-index";
 import type { PreloadedArticle } from "../../shared/markdown";
 import { describeArticle, type PageContent } from "./head";
 import type { FeedEntry } from "./feed";
@@ -95,7 +98,7 @@ export function planPages(index: ArticleIndex, articles: RenderedArticle[]): Pag
     page: {
       meta: {
         lang: DEFAULT_LANG,
-        title: pageTitle("Tags"),
+        title: pageTitle(TAGS_HEADING),
         description: `Tags on ${SITE_NAME}`,
         url: dirUrl("/tags"),
         type: "website",
@@ -109,8 +112,8 @@ export function planPages(index: ArticleIndex, articles: RenderedArticle[]): Pag
       page: {
         meta: {
           lang: DEFAULT_LANG,
-          title: pageTitle(`Articles tagged "${names[0]}"`),
-          description: `Articles tagged "${names[0]}" on ${SITE_NAME}`,
+          title: pageTitle(tagHeading(names[0])),
+          description: `${tagHeading(names[0])} on ${SITE_NAME}`,
           url: dirUrl(tagPath(names[0])),
           type: "website",
         },
@@ -145,7 +148,7 @@ export function planPages(index: ArticleIndex, articles: RenderedArticle[]): Pag
     page: {
       meta: {
         lang: DEFAULT_LANG,
-        title: pageTitle("Not found"),
+        title: pageTitle(NOT_FOUND_HEADING),
         description: "There is no page at this address.",
         type: "website",
         noindex: true,

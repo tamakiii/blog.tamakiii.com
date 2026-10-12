@@ -175,6 +175,22 @@ describe('renderPage', () => {
     expect(renderPage(once, page)).toBe(once)
   })
 
+  it('inserts $ replacement patterns in the title and lang literally', () => {
+    const title = "Quote $& $$ $` $' tail"
+    const html = renderPage(shell, {
+      meta: { ...articleMeta, lang: "x$&", title, ogTitle: title, description: title },
+      rootHtml: '<p>$& $$</p>',
+    })
+    const escaped = "Quote $&amp; $$ $` $&#39; tail"
+
+    expect(html).toContain(`<title>${escaped}</title>`)
+    expect(html.match(/<title>/g)).toHaveLength(1)
+    expect(html).toContain('<html lang="x$&amp;">')
+    expect(html).toContain(`<meta property="og:title" content="${escaped}" />`)
+    expect(html).toContain('<div id="root"><p>$& $$</p></div><!--/root-->')
+    expect(renderPage(html, { meta: { ...articleMeta, title } })).toContain(`<title>${escaped}</title>`)
+  })
+
   it('throws when the shell has no root element', () => {
     expect(() => renderPage('<html><head></head><body></body></html>', { meta: articleMeta })).toThrow(
       /root/

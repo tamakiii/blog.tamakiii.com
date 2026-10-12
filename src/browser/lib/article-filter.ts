@@ -1,5 +1,5 @@
 import type { ArticleIndexEntry, ArticleIndex } from "@shared/article";
-import { tagSlug } from "../../shared/site";
+import { findTags } from "../../shared/article-index";
 
 /**
  * Filter articles by locale.
@@ -15,17 +15,6 @@ export function filterByLocale(
 }
 
 /**
- * Return the tag names whose slug matches `tag`, which may be a tag name or a slug from a `/tags/{slug}` URL.
- */
-export function findTags(
-  tags: Record<string, string[]>,
-  tag: string
-): string[] {
-  const slug = tagSlug(tag);
-  return Object.keys(tags).filter((name) => tagSlug(name) === slug);
-}
-
-/**
  * Filter articles by tag, matching every tag name that shares the slug of `tag`.
  */
 export function filterByTag(
@@ -38,13 +27,6 @@ export function filterByTag(
   }
   const articlePaths = new Set(findTags(tags, tag).flatMap((name) => tags[name]));
   return articles.filter((a) => articlePaths.has(a.path));
-}
-
-/**
- * List the locales that have at least one article, sorted.
- */
-export function listLocales(index: ArticleIndex): string[] {
-  return [...new Set(index.articles.map((a) => a.locale))].sort();
 }
 
 /**

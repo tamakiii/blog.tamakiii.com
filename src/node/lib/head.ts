@@ -145,8 +145,9 @@ export function renderPage(shell: string, content: PageContent): string {
   const headBlock = `${HEAD_START}\n    ${head.join("\n    ")}\n    ${HEAD_END}`;
 
   let html = shell
-    .replace(/<html(\s[^>]*)?>/, `<html lang="${escapeHtml(meta.lang)}">`)
-    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
+    // Replacement functions keep `$&`, `$$` and the like in titles literal; a replacement string would expand them.
+    .replace(/<html(\s[^>]*)?>/, () => `<html lang="${escapeHtml(meta.lang)}">`)
+    .replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHtml(meta.title)}</title>`);
 
   const headPattern = new RegExp(`${HEAD_START}[\\s\\S]*?${HEAD_END}`);
   html = headPattern.test(html)
