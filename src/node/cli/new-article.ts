@@ -18,7 +18,7 @@ try {
     throw new Error("SLUG is required: make new SLUG=<slug> [LOCALE=en_US] [TITLE=\"...\"]");
   }
   const scaffold = buildScaffold({
-    locale: values.locale!,
+    locale: values.locale,
     slug: values.slug,
     title: values.title,
     now: new Date(),

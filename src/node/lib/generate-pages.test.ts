@@ -49,6 +49,11 @@ describe('groupTagsBySlug', () => {
 describe('planPages', () => {
   const pages = planPages(index, [rendered(en), rendered(ja)])
   const byFile = new Map(pages.map((p) => [p.file, p.page]))
+  const pageFor = (file: string) => {
+    const page = byFile.get(file)
+    if (!page) throw new Error(`no page planned for ${file}`)
+    return page
+  }
 
   it('plans root, locale, tag, article, and 404 pages', () => {
     expect(pages.map((p) => p.file)).toEqual([
@@ -65,7 +70,7 @@ describe('planPages', () => {
   })
 
   it('describes an article page from its locale and frontmatter', () => {
-    const page = byFile.get('ja_JP/2026/02-01/konnichiwa/index.html')!
+    const page = pageFor('ja_JP/2026/02-01/konnichiwa/index.html')
 
     expect(page.meta).toMatchObject({
       lang: 'ja',
@@ -83,9 +88,9 @@ describe('planPages', () => {
   })
 
   it('uses the locale language for locale pages and en elsewhere', () => {
-    expect(byFile.get('ja_JP/index.html')!.meta.lang).toBe('ja')
-    expect(byFile.get('index.html')!.meta.lang).toBe('en')
-    expect(byFile.get('tags/web-dev/index.html')!.meta).toMatchObject({
+    expect(pageFor('ja_JP/index.html').meta.lang).toBe('ja')
+    expect(pageFor('index.html').meta.lang).toBe('en')
+    expect(pageFor('tags/web-dev/index.html').meta).toMatchObject({
       lang: 'en',
       title: 'Articles tagged "Web Dev" | blog.tamakiii.com',
       url: 'https://blog.tamakiii.com/tags/web-dev/',
@@ -93,7 +98,7 @@ describe('planPages', () => {
   })
 
   it('marks 404.html noindex without a canonical URL', () => {
-    const meta = byFile.get('404.html')!.meta
+    const meta = pageFor('404.html').meta
     expect(meta.noindex).toBe(true)
     expect(meta.url).toBeUndefined()
   })
