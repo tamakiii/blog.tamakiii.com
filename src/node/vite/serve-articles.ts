@@ -94,9 +94,15 @@ export function serveArticlesPlugin(): Plugin {
           res.end("Invalid article path");
           return;
         }
-        if (asset.kind === "asset" && fs.statSync(asset.file, { throwIfNoEntry: false })?.isFile()) {
-          res.setHeader("Content-Type", asset.contentType);
-          fs.createReadStream(asset.file).pipe(res);
+        if (asset.kind === "asset") {
+          if (fs.statSync(asset.file, { throwIfNoEntry: false })?.isFile()) {
+            res.setHeader("Content-Type", asset.contentType);
+            fs.createReadStream(asset.file).pipe(res);
+          } else {
+            // A missing image is a 404, not the SPA's HTML.
+            res.statusCode = 404;
+            res.end("Not found");
+          }
           return;
         }
 

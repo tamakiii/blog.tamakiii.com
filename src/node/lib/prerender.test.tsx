@@ -14,20 +14,26 @@ describe('renderArticleBody', () => {
     const html = renderArticleBody('# Title\n\nIntro\n\n# Part', path)
     expect(html).not.toContain('<h1')
     expect(html).not.toContain('Title')
-    expect(html).toMatch(/<h2 id="part">Part<a[^>]*>#<\/a><\/h2>/)
+    expect(html).toMatch(/<h2 id="user-content-part">Part<a[^>]*>#<\/a><\/h2>/)
   })
 
   it('keeps a leading h1 that is not the first element', () => {
     const html = renderArticleBody('Intro\n\n# Later', path)
-    expect(html).toContain('<h2 id="later">Later')
+    expect(html).toContain('<h2 id="user-content-later">Later')
   })
 
   it('gives h2-h6 ids and anchor links', () => {
     const html = renderArticleBody('## Getting started\n\n### Next step', path)
     expect(html).toContain(
-      '<h2 id="getting-started">Getting started<a class="heading-anchor" aria-label="Link to this section" href="#getting-started">#</a></h2>'
+      '<h2 id="user-content-getting-started">Getting started<a class="heading-anchor" aria-label="Link to this section" href="#user-content-getting-started">#</a></h2>'
     )
-    expect(html).toContain('<h3 id="next-step">')
+    expect(html).toContain('<h3 id="user-content-next-step">')
+  })
+
+  it('prefixes heading ids so they cannot collide with the app root', () => {
+    const html = renderArticleBody('## Root', path)
+    expect(html).toContain('<h2 id="user-content-root">')
+    expect(html).not.toContain('id="root"')
   })
 
   it('opens external links in a new tab and leaves site links alone', () => {

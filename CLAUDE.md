@@ -15,11 +15,19 @@ Personal blog repository deployed to GitHub Pages at blog.tamakiii.com.
 - `article/{locale}/{yyyy}/{mm-dd}/{slug}.md` - Source articles with frontmatter
 - `src/browser/` - React app: `components/`, `hooks/`, `lib/` (pure helpers), `styles/`
 - `src/node/` - Node-side code: `cli/` (build and authoring entry points run with tsx), `lib/` (build logic), `vite/` (dev-server plugin that serves `article/` and `/index.json`)
-- `src/shared/` - Types shared by browser and node code
+- `src/shared/` - Code shared by browser and node: `article.ts` (types), `article-index.ts`, `article-url.ts`, `markdown.ts`, `site.ts` (origin, tag slugs)
+- `public/` - Static files copied to the site root as they are (favicon)
 - `docs/` - Generated output (git-ignored)
 - `terraform/` - AWS Route53 DNS configuration
 - `.github/workflows/deploy.yml` - Build and deploy to GitHub Pages on push to main
 - `.github/workflows/build.yml` - Test and build on pull requests
+
+## Article conventions
+
+- The body's headings start at `##`; the frontmatter `title` is the page's `h1`, and a leading `#` in the body is dropped.
+- Images and other assets live in `article/{locale}/{yyyy}/{mm-dd}/{slug}/` and are referenced relatively (`![alt](./img.png)`).
+- `description` is optional frontmatter; when absent, the first paragraph is used.
+- Heading ids carry a `user-content-` prefix (`## Root` becomes `#user-content-root`).
 
 ## Build
 

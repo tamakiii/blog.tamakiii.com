@@ -40,7 +40,8 @@ export const remarkPlugins: Options["remarkPlugins"] = [remarkGfm];
 
 export const rehypePlugins: Options["rehypePlugins"] = [
   rehypeTitleHeading,
-  rehypeSlug,
+  // Prefixed so a `## Root` heading cannot take the id of the app's mount point.
+  [rehypeSlug, { prefix: "user-content-" }],
   [
     rehypeAutolinkHeadings,
     {
