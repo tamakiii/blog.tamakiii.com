@@ -2,14 +2,14 @@ import type { Plugin } from "vite";
 import fs from "fs";
 import path from "path";
 import { glob } from "glob";
-import { isPathWithinRoot } from "../lib/article";
-import { validateUniqueSlugs } from "../lib/frontmatter";
+import { isPathWithinRoot } from "../lib/article.ts";
+import { validateUniqueSlugs } from "../lib/frontmatter.ts";
 import {
   parseArticlePath,
   loadArticle,
   buildTagIndex,
   type ArticleIndex,
-} from "../lib/generate-index";
+} from "../lib/generate-index.ts";
 
 function generateArticleIndex(): ArticleIndex {
   const articleDir = path.join(process.cwd(), "article");
