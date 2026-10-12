@@ -1,6 +1,7 @@
 import path from "path";
 import matter from "gray-matter";
 import type { ArticleFrontmatter } from "@shared/article";
+import { validateFrontmatter } from "./frontmatter";
 
 /**
  * Check if a resolved path is within the allowed root directory.
@@ -11,14 +12,10 @@ export function isPathWithinRoot(resolvedPath: string, root: string): boolean {
 }
 
 /**
- * Extract frontmatter from raw markdown content using gray-matter.
+ * Extract and validate frontmatter from raw markdown content using gray-matter.
+ * Throws a FrontmatterError naming `file` when a field breaks a rule.
  */
-export function extractFrontmatter(raw: string): ArticleFrontmatter {
+export function extractFrontmatter(raw: string, file: string): ArticleFrontmatter {
   const { data } = matter(raw);
-  return {
-    title: (data.title as string) || "",
-    date: (data.date as string) || "",
-    tags: data.tags as string[] | undefined,
-    description: data.description as string | undefined,
-  };
+  return validateFrontmatter(data, file);
 }

@@ -33,7 +33,7 @@ date: "2026-01-03"
 
 Content here`;
 
-    const result = extractFrontmatter(raw);
+    const result = extractFrontmatter(raw, "en_US/2026/01-03/test.md");
 
     expect(result.title).toBe("Hello World");
     expect(result.date).toBe("2026-01-03");
@@ -50,7 +50,7 @@ tags:
 
 Content`;
 
-    const result = extractFrontmatter(raw);
+    const result = extractFrontmatter(raw, "en_US/2026/01-03/test.md");
 
     expect(result.tags).toEqual(["typescript", "testing"]);
   });
@@ -64,29 +64,40 @@ description: "A test article"
 
 Content`;
 
-    const result = extractFrontmatter(raw);
+    const result = extractFrontmatter(raw, "en_US/2026/01-03/test.md");
 
     expect(result.description).toBe("A test article");
   });
 
-  it("returns empty strings for missing required fields", () => {
+  it("throws naming the file when required fields are missing", () => {
     const raw = `---
 ---
 
 Content`;
 
-    const result = extractFrontmatter(raw);
-
-    expect(result.title).toBe("");
-    expect(result.date).toBe("");
+    expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
+      /^en_US\/2026\/01-03\/test\.md: `title`/
+    );
   });
 
-  it("handles content without frontmatter", () => {
+  it("throws for content without frontmatter", () => {
     const raw = "Just content without frontmatter";
 
-    const result = extractFrontmatter(raw);
+    expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
+      /`title` must be a non-empty string/
+    );
+  });
 
-    expect(result.title).toBe("");
-    expect(result.date).toBe("");
+  it("throws when an unquoted date is parsed as a YAML timestamp", () => {
+    const raw = `---
+title: "Test"
+date: 2026-01-03
+---
+
+Content`;
+
+    expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
+      /quote it/
+    );
   });
 });

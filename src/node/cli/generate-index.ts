@@ -20,4 +20,7 @@ async function main() {
   console.log(`Output: ${path.join(OUTPUT_DIR, "index.json")}`);
 }
 
-main().catch(console.error);
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

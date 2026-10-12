@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: make test
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
       - uses: actions/configure-pages@v5.0.0
 
       - name: Build
