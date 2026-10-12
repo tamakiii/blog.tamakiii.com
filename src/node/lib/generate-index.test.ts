@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import {
+  generateIndex,
+  listArticleFiles,
   parseArticlePath,
   buildArticleEntry,
   buildTagIndex,
@@ -159,5 +164,53 @@ describe('buildTagIndex', () => {
     const result = buildTagIndex(articles)
 
     expect(result).toEqual({})
+  })
+})
+
+describe('article order', () => {
+  const dirs: string[] = []
+  afterEach(() => {
+    for (const dir of dirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  // Creation order is deliberately not sorted, so filesystem order and sorted order are likely to differ.
+  function makeArticles(files: string[]): string {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-index-'))
+    dirs.push(dir)
+    for (const file of files) {
+      const [, year, mmdd] = file.split('/')
+      fs.mkdirSync(path.join(dir, path.dirname(file)), { recursive: true })
+      fs.writeFileSync(
+        path.join(dir, file),
+        `---\ntitle: "${file}"\ndate: "${year}-${mmdd}"\ntags:\n  - shared\n---\n`,
+      )
+    }
+    return dir
+  }
+
+  const files = [
+    'ja_JP/2026/01-03/zeta.md',
+    'en_US/2026/02-01/beta.md',
+    'en_US/2026/01-03/alpha.md',
+    'en_US/2025/12-31/omega.md',
+  ]
+
+  it('lists article files in sorted order', () => {
+    const dir = makeArticles(files)
+    expect(listArticleFiles(dir)).toEqual([...files].sort())
+  })
+
+  it('builds the same index, in path order, on every run', async () => {
+    const dir = makeArticles(files)
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-out-'))
+    dirs.push(out)
+
+    const first = await generateIndex({ articleDir: dir, outputDir: out })
+    const second = await generateIndex({ articleDir: dir, outputDir: out })
+    const paths = first.index.articles.map((a) => a.path)
+
+    expect(paths).toEqual([...paths].sort())
+    expect(first.index.tags.shared).toEqual(paths)
+    expect(JSON.stringify(second.index)).toBe(JSON.stringify(first.index))
   })
 })

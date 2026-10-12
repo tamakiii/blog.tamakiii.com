@@ -7,6 +7,4 @@ tags:
 description: "This is a test article"
 ---
 
-# Hello (en_US)
-
 Hello. This is a test article.

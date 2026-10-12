@@ -1,11 +1,12 @@
 import type { Plugin } from "vite";
 import fs from "fs";
 import path from "path";
-import { glob } from "glob";
 import { isPathWithinRoot } from "../lib/article.ts";
 import { validateUniqueSlugs } from "../lib/frontmatter.ts";
+import { resolveArticleAsset } from "./article-assets.ts";
 import {
   parseArticlePath,
+  listArticleFiles,
   loadArticle,
   buildTagIndex,
   type ArticleIndex,
@@ -13,9 +14,7 @@ import {
 
 function generateArticleIndex(): ArticleIndex {
   const articleDir = path.join(process.cwd(), "article");
-  const files = glob.sync("**/*.md", { cwd: articleDir });
-
-  const articles = files
+  const articles = listArticleFiles(articleDir)
     .map((file) => {
       const parsed = parseArticlePath(file);
       if (!parsed) return null;
@@ -86,6 +85,19 @@ export function serveArticlesPlugin(): Plugin {
             res.end(fs.readFileSync(resolvedPath, "utf-8"));
             return;
           }
+        }
+
+        // Images next to an article, at the URLs the build copies them to.
+        const asset = resolveArticleAsset(req.url ?? "", articleRoot);
+        if (asset.kind === "invalid") {
+          res.statusCode = 400;
+          res.end("Invalid article path");
+          return;
+        }
+        if (asset.kind === "asset" && fs.statSync(asset.file, { throwIfNoEntry: false })?.isFile()) {
+          res.setHeader("Content-Type", asset.contentType);
+          fs.createReadStream(asset.file).pipe(res);
+          return;
         }
 
         next();

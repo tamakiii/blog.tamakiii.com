@@ -44,7 +44,7 @@ async function main() {
     return {
       entry,
       content,
-      bodyHtml: renderArticleBody(content),
+      bodyHtml: renderArticleBody(content, entry.path),
       rootHtml: renderArticlePage(preloadFor({ entry, content })),
     };
   });

@@ -1,3 +1,62 @@
+/* Colors are custom properties so that the dark scheme below redefines them in one place. */
+:root {
+  color-scheme: light dark;
+
+  --color-text: #333;
+  --color-text-muted: #666;
+  --color-background: #fff;
+  --color-border: #eee;
+  --color-link: #0b5cad;
+  --color-focus: #0b5cad;
+  --color-error: #c00;
+  --color-tag-background: #f0f0f0;
+  --color-tag-background-hover: #e0e0e0;
+  --color-code-background: #f5f5f5;
+
+  /* Code highlighting, after GitHub's light theme. */
+  --hl-text: #24292e;
+  --hl-keyword: #d73a49;
+  --hl-title: #6f42c1;
+  --hl-constant: #005cc5;
+  --hl-string: #032f62;
+  --hl-variable: #e36209;
+  --hl-comment: #6a737d;
+  --hl-tag: #22863a;
+  --hl-addition-background: #f0fff4;
+  --hl-addition: #22863a;
+  --hl-deletion-background: #ffeef0;
+  --hl-deletion: #b31d28;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #ddd;
+    --color-text-muted: #9a9a9a;
+    --color-background: #161618;
+    --color-border: #2e2e32;
+    --color-link: #7cb7ff;
+    --color-focus: #7cb7ff;
+    --color-error: #ff7b72;
+    --color-tag-background: #26262a;
+    --color-tag-background-hover: #34343a;
+    --color-code-background: #222226;
+
+    /* Code highlighting, after GitHub's dark theme. */
+    --hl-text: #c9d1d9;
+    --hl-keyword: #ff7b72;
+    --hl-title: #d2a8ff;
+    --hl-constant: #79c0ff;
+    --hl-string: #a5d6ff;
+    --hl-variable: #ffa657;
+    --hl-comment: #8b949e;
+    --hl-tag: #7ee787;
+    --hl-addition-background: #033a16;
+    --hl-addition: #aff5b4;
+    --hl-deletion-background: #67060c;
+    --hl-deletion: #ffdcd7;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,7 +67,18 @@ body {
   line-height: 1.6;
   margin: 0;
   padding: 0;
-  color: #333;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+a {
+  color: var(--color-link);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .layout {
@@ -21,12 +91,12 @@ header nav {
   display: flex;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 2rem;
 }
 
 header nav a {
-  color: #333;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -41,17 +111,18 @@ main {
 footer {
   margin-top: 2rem;
   padding: 1rem 0;
-  border-top: 1px solid #eee;
-  color: #666;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .article-header h1 {
   margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
 }
 
 .article-header time {
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -63,37 +134,61 @@ footer {
 }
 
 .tag {
-  background: #f0f0f0;
+  background: var(--color-tag-background);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   text-decoration: none;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
 .tag:hover {
-  background: #e0e0e0;
+  background: var(--color-tag-background-hover);
 }
 
 .article-content {
   margin-top: 2rem;
+  overflow-wrap: break-word;
 }
 
-.article-content h1,
 .article-content h2,
 .article-content h3 {
   margin-top: 1.5rem;
 }
 
+.article-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* The "#" link rehype-autolink-headings appends to h2-h6; shown on hover or keyboard focus. */
+.heading-anchor {
+  margin-left: 0.4em;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  opacity: 0;
+}
+
+:is(h2, h3, h4, h5, h6):hover .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .heading-anchor {
+    opacity: 0.5;
+  }
+}
+
 .article-content pre {
-  background: #f5f5f5;
+  background: var(--color-code-background);
   padding: 1rem;
   overflow-x: auto;
   border-radius: 4px;
 }
 
 .article-content code {
-  background: #f5f5f5;
+  background: var(--color-code-background);
   padding: 0.2rem 0.4rem;
   border-radius: 3px;
   font-size: 0.9em;
@@ -104,6 +199,96 @@ footer {
   padding: 0;
 }
 
+/* highlight.js classes, which rehype-code-highlight writes at render time. */
+.hljs {
+  color: var(--hl-text);
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  color: var(--hl-keyword);
+}
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  color: var(--hl-title);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  color: var(--hl-constant);
+}
+
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: var(--hl-string);
+}
+
+.hljs-built_in,
+.hljs-symbol {
+  color: var(--hl-variable);
+}
+
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  color: var(--hl-comment);
+}
+
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  color: var(--hl-tag);
+}
+
+.hljs-subst {
+  color: var(--hl-text);
+}
+
+.hljs-section {
+  color: var(--hl-constant);
+  font-weight: bold;
+}
+
+.hljs-bullet {
+  color: var(--hl-variable);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-addition {
+  color: var(--hl-addition);
+  background-color: var(--hl-addition-background);
+}
+
+.hljs-deletion {
+  color: var(--hl-deletion);
+  background-color: var(--hl-deletion-background);
+}
+
 .article-list ul {
   list-style: none;
   padding: 0;
@@ -111,14 +296,22 @@ footer {
 
 .article-list li {
   padding: 1rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
+/* Title and date share a row; a long title wraps within its own column and the date never shrinks. */
 .article-list li a {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
   text-decoration: none;
-  color: #333;
+  color: var(--color-text);
+}
+
+.article-list .title {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .article-list li a:hover .title {
@@ -126,17 +319,27 @@ footer {
 }
 
 .article-list .date {
-  color: #666;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+/* On narrow screens the date moves under the title instead of squeezing it. */
+@media (max-width: 480px) {
+  .article-list li a {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
 }
 
 .loading,
 .error {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .error {
-  color: #c00;
+  color: var(--color-error);
 }
