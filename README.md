@@ -56,6 +56,7 @@ make build       # Production build into docs/
 make preview     # Build, then serve docs/ as production would
 make test        # Unit tests (Vitest), once
 make test-watch  # Unit tests in watch mode
+make lint        # Lint and format check (Biome); make lint-fix applies fixes
 make clean       # Remove docs/ and node_modules/
 ```
 
@@ -65,7 +66,7 @@ make clean       # Remove docs/ and node_modules/
 
 ## Deployment
 
-A push to `main` runs `.github/workflows/deploy.yml`, which runs `make build` and publishes `docs/` as a GitHub Pages artifact. The repository's Pages source must be set to "GitHub Actions"; publishing from a branch is not used. Pull requests run `make test` and `make build` in `.github/workflows/build.yml`.
+A push to `main` runs `.github/workflows/deploy.yml`, which runs `make build` and publishes `docs/` as a GitHub Pages artifact. The repository's Pages source must be set to "GitHub Actions"; publishing from a branch is not used. Pull requests run `make lint`, `make test`, and `make build` in `.github/workflows/build.yml`.
 
 ## DNS
 

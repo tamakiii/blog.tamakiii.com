@@ -26,7 +26,10 @@ export function buildSitemap(urls: SitemapUrl[]): string {
 
 /** Latest YYYY-MM-DD among `dates`, or undefined when empty. */
 export function latestDate(dates: string[]): string | undefined {
-  return dates.reduce<string | undefined>((latest, d) => (!latest || d > latest ? d : latest), undefined);
+  return dates.reduce<string | undefined>(
+    (latest, d) => (!latest || d > latest ? d : latest),
+    undefined,
+  );
 }
 
 export function buildRobots(): string {

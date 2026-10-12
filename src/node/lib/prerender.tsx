@@ -23,6 +23,6 @@ export function renderArticlePage(preloaded: PreloadedArticle): string {
           <App />
         </PreloadedArticleContext.Provider>
       </StaticRouter>
-    </StrictMode>
+    </StrictMode>,
   );
 }

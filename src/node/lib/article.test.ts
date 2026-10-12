@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { isPathWithinRoot, extractFrontmatter } from "./article";
+import { describe, expect, it } from "vitest";
+import { extractFrontmatter, isPathWithinRoot } from "./article";
 
 describe("isPathWithinRoot", () => {
   it("returns true when path is within root", () => {
@@ -19,7 +19,10 @@ describe("isPathWithinRoot", () => {
   });
 
   it("returns false when path equals root without separator", () => {
-    const result = isPathWithinRoot("/root/article-extra/file.md", "/root/article");
+    const result = isPathWithinRoot(
+      "/root/article-extra/file.md",
+      "/root/article",
+    );
     expect(result).toBe(false);
   });
 });
@@ -76,7 +79,7 @@ Content`;
 Content`;
 
     expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
-      /^en_US\/2026\/01-03\/test\.md: `title`/
+      /^en_US\/2026\/01-03\/test\.md: `title`/,
     );
   });
 
@@ -84,7 +87,7 @@ Content`;
     const raw = "Just content without frontmatter";
 
     expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
-      /`title` must be a non-empty string/
+      /`title` must be a non-empty string/,
     );
   });
 
@@ -97,7 +100,7 @@ date: 2026-01-03
 Content`;
 
     expect(() => extractFrontmatter(raw, "en_US/2026/01-03/test.md")).toThrow(
-      /quote it/
+      /quote it/,
     );
   });
 });

@@ -33,7 +33,7 @@ export class FrontmatterError extends Error {
  */
 export function validateFrontmatter(
   data: Record<string, unknown>,
-  file: string
+  file: string,
 ): ArticleFrontmatter {
   const { title, date, tags, description } = data;
 
@@ -44,13 +44,17 @@ export function validateFrontmatter(
   if (date instanceof Date) {
     throw new FrontmatterError(
       file,
-      '`date` was parsed as a YAML timestamp; quote it, e.g. date: "2026-01-03"'
+      '`date` was parsed as a YAML timestamp; quote it, e.g. date: "2026-01-03"',
     );
   }
-  if (typeof date !== "string" || !DATE_PATTERN.test(date) || !isCalendarDate(date)) {
+  if (
+    typeof date !== "string" ||
+    !DATE_PATTERN.test(date) ||
+    !isCalendarDate(date)
+  ) {
     throw new FrontmatterError(
       file,
-      '`date` must be a string in YYYY-MM-DD form, e.g. date: "2026-01-03"'
+      '`date` must be a string in YYYY-MM-DD form, e.g. date: "2026-01-03"',
     );
   }
 
@@ -63,7 +67,7 @@ export function validateFrontmatter(
     ) {
       throw new FrontmatterError(
         file,
-        "`tags` must be a list of non-empty strings"
+        "`tags` must be a list of non-empty strings",
       );
     }
     frontmatter.tags = tags;
@@ -85,13 +89,13 @@ export function validateFrontmatter(
 export function validateDateMatchesPath(
   frontmatter: ArticleFrontmatter,
   parsed: ParsedArticlePath,
-  file: string
+  file: string,
 ): void {
   const pathDate = `${parsed.year}-${parsed.date}`;
   if (frontmatter.date !== pathDate) {
     throw new FrontmatterError(
       file,
-      `\`date\` "${frontmatter.date}" does not match the path date "${pathDate}"`
+      `\`date\` "${frontmatter.date}" does not match the path date "${pathDate}"`,
     );
   }
 }
@@ -109,7 +113,7 @@ export function validateUniqueSlugs(articles: ArticleIndexEntry[]): void {
     if (previous) {
       throw new FrontmatterError(
         file,
-        `slug "${article.slug}" is already used in locale ${article.locale} by ${previous}`
+        `slug "${article.slug}" is already used in locale ${article.locale} by ${previous}`,
       );
     }
     seen.set(key, file);

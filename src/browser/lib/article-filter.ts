@@ -1,4 +1,4 @@
-import type { ArticleIndexEntry, ArticleIndex } from "@shared/article";
+import type { ArticleIndex, ArticleIndexEntry } from "@shared/article";
 import { findTags } from "../../shared/article-index";
 
 /**
@@ -6,7 +6,7 @@ import { findTags } from "../../shared/article-index";
  */
 export function filterByLocale(
   articles: ArticleIndexEntry[],
-  locale: string | undefined
+  locale: string | undefined,
 ): ArticleIndexEntry[] {
   if (!locale) {
     return articles;
@@ -20,12 +20,14 @@ export function filterByLocale(
 export function filterByTag(
   articles: ArticleIndexEntry[],
   tags: Record<string, string[]>,
-  tag: string | undefined
+  tag: string | undefined,
 ): ArticleIndexEntry[] {
   if (!tag) {
     return articles;
   }
-  const articlePaths = new Set(findTags(tags, tag).flatMap((name) => tags[name]));
+  const articlePaths = new Set(
+    findTags(tags, tag).flatMap((name) => tags[name]),
+  );
   return articles.filter((a) => articlePaths.has(a.path));
 }
 
@@ -33,12 +35,12 @@ export function filterByTag(
  * Sort articles by date descending (newest first).
  */
 export function sortByDateDesc(
-  articles: ArticleIndexEntry[]
+  articles: ArticleIndexEntry[],
 ): ArticleIndexEntry[] {
   return [...articles].sort(
     (a, b) =>
       new Date(b.frontmatter.date).getTime() -
-      new Date(a.frontmatter.date).getTime()
+      new Date(a.frontmatter.date).getTime(),
   );
 }
 
@@ -48,7 +50,7 @@ export function sortByDateDesc(
 export function filterAndSortArticles(
   index: ArticleIndex,
   locale: string | undefined,
-  tag: string | undefined
+  tag: string | undefined,
 ): ArticleIndexEntry[] {
   let articles = index.articles;
   articles = filterByLocale(articles, locale);

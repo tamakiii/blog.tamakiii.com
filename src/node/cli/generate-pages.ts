@@ -1,18 +1,18 @@
-import fs from "fs";
-import path from "path";
-import type { ArticleIndex } from "@shared/article";
-import { stripFrontmatter } from "@shared/markdown";
-import { renderPage } from "@node/lib/head";
+import fs from "node:fs";
+import path from "node:path";
 import { buildAtomFeed } from "@node/lib/feed";
-import { buildRobots, buildSitemap } from "@node/lib/sitemap";
-import { renderArticleBody, renderArticlePage } from "@node/lib/prerender";
 import {
   feedEntries,
   planPages,
   preloadFor,
-  sitemapUrls,
   type RenderedArticle,
+  sitemapUrls,
 } from "@node/lib/generate-pages";
+import { renderPage } from "@node/lib/head";
+import { renderArticleBody, renderArticlePage } from "@node/lib/prerender";
+import { buildRobots, buildSitemap } from "@node/lib/sitemap";
+import type { ArticleIndex } from "@shared/article";
+import { stripFrontmatter } from "@shared/markdown";
 
 const ARTICLE_DIR = "./article";
 const DOCS_DIR = "./docs";
@@ -36,10 +36,15 @@ async function main() {
 
   // docs/index.html is the Vite-built shell; renderPage replaces what an earlier run injected, so it is safe to reuse after this script has overwritten it.
   const shell = fs.readFileSync(INDEX_HTML, "utf-8");
-  const index = JSON.parse(fs.readFileSync(INDEX_JSON, "utf-8")) as ArticleIndex;
+  const index = JSON.parse(
+    fs.readFileSync(INDEX_JSON, "utf-8"),
+  ) as ArticleIndex;
 
   const articles: RenderedArticle[] = index.articles.map((entry) => {
-    const raw = fs.readFileSync(path.join(ARTICLE_DIR, `${entry.path}.md`), "utf-8");
+    const raw = fs.readFileSync(
+      path.join(ARTICLE_DIR, `${entry.path}.md`),
+      "utf-8",
+    );
     const content = stripFrontmatter(raw);
     return {
       entry,
@@ -53,7 +58,9 @@ async function main() {
   for (const { file, page } of pages) {
     write(file, renderPage(shell, page));
   }
-  console.log(`Generated ${pages.length} HTML pages (${articles.length} articles)`);
+  console.log(
+    `Generated ${pages.length} HTML pages (${articles.length} articles)`,
+  );
 
   write("feed.xml", buildAtomFeed(feedEntries(articles)));
   write("sitemap.xml", buildSitemap(sitemapUrls(index)));

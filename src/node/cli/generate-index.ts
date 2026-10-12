@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { generateIndex, writeIndex } from "@node/lib/generate-index";
 
 const ARTICLE_DIR = "./article";

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import type { ArticleIndex } from "@shared/article";
+import { useEffect, useState } from "react";
 
 export function useArticleIndex() {
   const [index, setIndex] = useState<ArticleIndex | null>(null);

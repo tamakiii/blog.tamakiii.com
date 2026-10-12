@@ -1,20 +1,20 @@
 import type { ArticleIndex, ArticleIndexEntry } from "../../shared/article";
-import {
-  DEFAULT_LANG,
-  NOT_FOUND_HEADING,
-  SITE_NAME,
-  TAGS_HEADING,
-  absoluteUrl,
-  localeToLang,
-  pageTitle,
-  tagHeading,
-  tagSlug,
-  tagPath,
-} from "../../shared/site";
 import { listLocales } from "../../shared/article-index";
 import type { PreloadedArticle } from "../../shared/markdown";
-import { describeArticle, type PageContent } from "./head";
+import {
+  absoluteUrl,
+  DEFAULT_LANG,
+  localeToLang,
+  NOT_FOUND_HEADING,
+  pageTitle,
+  SITE_NAME,
+  TAGS_HEADING,
+  tagHeading,
+  tagPath,
+  tagSlug,
+} from "../../shared/site";
 import type { FeedEntry } from "./feed";
+import { describeArticle, type PageContent } from "./head";
 import { latestDate, type SitemapUrl } from "./sitemap";
 
 /** An article with its Markdown body and the renderings the build needs. */
@@ -49,19 +49,30 @@ export function groupTagsBySlug(tags: string[]): Map<string, string[]> {
   return groups;
 }
 
-export function preloadFor(article: Pick<RenderedArticle, "entry" | "content">): PreloadedArticle {
+export function preloadFor(
+  article: Pick<RenderedArticle, "entry" | "content">,
+): PreloadedArticle {
   return {
     path: article.entry.path,
-    article: { frontmatter: article.entry.frontmatter, content: article.content },
+    article: {
+      frontmatter: article.entry.frontmatter,
+      content: article.content,
+    },
   };
 }
 
 export function articleDescription(article: RenderedArticle): string {
-  return describeArticle(article.entry.frontmatter.description, article.bodyHtml);
+  return describeArticle(
+    article.entry.frontmatter.description,
+    article.bodyHtml,
+  );
 }
 
 /** Every HTML page the build writes: root, per-locale lists, tag pages, articles, and 404.html. */
-export function planPages(index: ArticleIndex, articles: RenderedArticle[]): PageFile[] {
+export function planPages(
+  index: ArticleIndex,
+  articles: RenderedArticle[],
+): PageFile[] {
   const pages: PageFile[] = [
     {
       file: "index.html",
@@ -175,14 +186,20 @@ export function feedEntries(articles: RenderedArticle[]): FeedEntry[] {
 export function sitemapUrls(index: ArticleIndex): SitemapUrl[] {
   const dateOf = (paths: string[]) =>
     latestDate(
-      index.articles.filter((a) => paths.includes(a.path)).map((a) => a.frontmatter.date)
+      index.articles
+        .filter((a) => paths.includes(a.path))
+        .map((a) => a.frontmatter.date),
     );
   const allPaths = index.articles.map((a) => a.path);
 
-  const urls: SitemapUrl[] = [{ loc: absoluteUrl("/"), lastmod: dateOf(allPaths) }];
+  const urls: SitemapUrl[] = [
+    { loc: absoluteUrl("/"), lastmod: dateOf(allPaths) },
+  ];
 
   for (const locale of listLocales(index)) {
-    const paths = index.articles.filter((a) => a.locale === locale).map((a) => a.path);
+    const paths = index.articles
+      .filter((a) => a.locale === locale)
+      .map((a) => a.path);
     urls.push({ loc: dirUrl(`/${locale}`), lastmod: dateOf(paths) });
   }
 

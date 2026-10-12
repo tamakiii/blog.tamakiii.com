@@ -19,7 +19,7 @@ function ArticleRendererForPath({ path }: { path: string }) {
 
   useDocumentMeta(
     shown ? article.frontmatter.title : null,
-    locale ? localeToLang(locale) : DEFAULT_LANG
+    locale ? localeToLang(locale) : DEFAULT_LANG,
   );
 
   if (loading) {

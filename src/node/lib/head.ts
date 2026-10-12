@@ -1,5 +1,8 @@
+import {
+  PRELOADED_ARTICLE_ID,
+  type PreloadedArticle,
+} from "../../shared/markdown";
 import { SITE_NAME } from "../../shared/site";
-import { PRELOADED_ARTICLE_ID, type PreloadedArticle } from "../../shared/markdown";
 
 export const DESCRIPTION_MAX_LENGTH = 160;
 
@@ -33,12 +36,17 @@ export function escapeHtml(value: string): string {
 }
 
 function decodeHtmlEntities(value: string): string {
-  return value.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (_, code: string) => {
-    const lower = code.toLowerCase();
-    if (lower.startsWith("#x")) return String.fromCodePoint(parseInt(lower.slice(2), 16));
-    if (lower.startsWith("#")) return String.fromCodePoint(parseInt(lower.slice(1), 10));
-    return { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" }[lower] ?? "";
-  });
+  return value.replace(
+    /&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi,
+    (_, code: string) => {
+      const lower = code.toLowerCase();
+      if (lower.startsWith("#x"))
+        return String.fromCodePoint(parseInt(lower.slice(2), 16));
+      if (lower.startsWith("#"))
+        return String.fromCodePoint(parseInt(lower.slice(1), 10));
+      return { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" }[lower] ?? "";
+    },
+  );
 }
 
 /** Plain text of the first `<p>` in rendered HTML, with tags removed and whitespace collapsed; empty when there is none. */
@@ -56,7 +64,10 @@ export function firstParagraphText(html: string): string {
  * Collapse whitespace and cut `text` to at most `max` characters, ending in `…` when cut.
  * The cut falls on the last space when one is near the end, and anywhere otherwise (as in Japanese text).
  */
-export function truncateText(text: string, max = DESCRIPTION_MAX_LENGTH): string {
+export function truncateText(
+  text: string,
+  max = DESCRIPTION_MAX_LENGTH,
+): string {
   const chars = Array.from(text.replace(/\s+/g, " ").trim());
   if (chars.length <= max) {
     return chars.join("");
@@ -70,15 +81,17 @@ export function truncateText(text: string, max = DESCRIPTION_MAX_LENGTH): string
 }
 
 /** The frontmatter description when set, otherwise the first paragraph of the rendered body; truncated either way. */
-export function describeArticle(description: string | undefined, bodyHtml: string): string {
+export function describeArticle(
+  description: string | undefined,
+  bodyHtml: string,
+): string {
   const text = description?.trim() || firstParagraphText(bodyHtml);
   return truncateText(text);
 }
 
 /** Serialize a value as JSON that cannot close the `<script type="application/json">` element it sits in. */
 export function scriptJson(value: unknown): string {
-  return JSON.stringify(value)
-    .replace(/</g, "\\u003c");
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 /** Build the `<meta>` and `<link>` tags for a page's head. */
@@ -96,7 +109,7 @@ export function buildHeadTags(meta: PageMeta): string[] {
   tags.push(
     `<meta property="og:type" content="${meta.type}" />`,
     `<meta property="og:title" content="${attr(meta.ogTitle ?? meta.title)}" />`,
-    `<meta property="og:description" content="${attr(meta.description)}" />`
+    `<meta property="og:description" content="${attr(meta.description)}" />`,
   );
   if (meta.url) {
     tags.push(`<meta property="og:url" content="${attr(meta.url)}" />`);
@@ -107,7 +120,7 @@ export function buildHeadTags(meta: PageMeta): string[] {
   }
   if (meta.publishedTime) {
     tags.push(
-      `<meta property="article:published_time" content="${attr(meta.publishedTime)}" />`
+      `<meta property="article:published_time" content="${attr(meta.publishedTime)}" />`,
     );
   }
   for (const tag of meta.tags ?? []) {
@@ -139,7 +152,7 @@ export function renderPage(shell: string, content: PageContent): string {
   const head = buildHeadTags(meta);
   if (content.preloaded) {
     head.push(
-      `<script id="${PRELOADED_ARTICLE_ID}" type="application/json">${scriptJson(content.preloaded)}</script>`
+      `<script id="${PRELOADED_ARTICLE_ID}" type="application/json">${scriptJson(content.preloaded)}</script>`,
     );
   }
   const headBlock = `${HEAD_START}\n    ${head.join("\n    ")}\n    ${HEAD_END}`;
@@ -147,16 +160,27 @@ export function renderPage(shell: string, content: PageContent): string {
   let html = shell
     // Replacement functions keep `$&`, `$$` and the like in titles literal; a replacement string would expand them.
     .replace(/<html(\s[^>]*)?>/, () => `<html lang="${escapeHtml(meta.lang)}">`)
-    .replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHtml(meta.title)}</title>`);
+    .replace(
+      /<title>[^<]*<\/title>/,
+      () => `<title>${escapeHtml(meta.title)}</title>`,
+    );
 
   const headPattern = new RegExp(`${HEAD_START}[\\s\\S]*?${HEAD_END}`);
   html = headPattern.test(html)
     ? html.replace(headPattern, () => headBlock)
-    : html.replace(/(\s*)<\/head>/, (_, space: string) => `\n    ${headBlock}${space}</head>`);
+    : html.replace(
+        /(\s*)<\/head>/,
+        (_, space: string) => `\n    ${headBlock}${space}</head>`,
+      );
 
-  const rootPattern = new RegExp(`<div id="root">(?:[\\s\\S]*?</div>${ROOT_END}|</div>)`);
+  const rootPattern = new RegExp(
+    `<div id="root">(?:[\\s\\S]*?</div>${ROOT_END}|</div>)`,
+  );
   if (!rootPattern.test(html)) {
     throw new Error('HTML shell has no <div id="root"></div>');
   }
-  return html.replace(rootPattern, () => `<div id="root">${content.rootHtml ?? ""}</div>${ROOT_END}`);
+  return html.replace(
+    rootPattern,
+    () => `<div id="root">${content.rootHtml ?? ""}</div>${ROOT_END}`,
+  );
 }

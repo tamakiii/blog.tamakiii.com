@@ -9,7 +9,8 @@ export default function NotFound() {
     <div className="not-found">
       <h1>{NOT_FOUND_HEADING}</h1>
       <p>
-        There is no page at this address. <Link to="/">Back to the article list</Link>
+        There is no page at this address.{" "}
+        <Link to="/">Back to the article list</Link>
       </p>
     </div>
   );

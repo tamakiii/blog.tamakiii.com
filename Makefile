@@ -1,4 +1,4 @@
-.PHONY: help build dev test test-watch preview new clean
+.PHONY: help build dev test test-watch lint lint-fix preview new clean
 
 LOCALES := $(notdir $(wildcard article/*))
 # Directories too, so deleting an article (which bumps its directory mtime) is noticed.
@@ -20,6 +20,12 @@ test: node_modules
 
 test-watch: node_modules
 	npx --no vitest
+
+lint: node_modules
+	npx --no biome check .
+
+lint-fix: node_modules
+	npx --no biome check --write .
 
 preview: build
 	npx vite preview

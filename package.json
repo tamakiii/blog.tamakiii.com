@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest run",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,6 +26,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.15",
     "@types/hast": "^3.0.5",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
