@@ -2,7 +2,7 @@ import type { Plugin } from "vite";
 import fs from "fs";
 import path from "path";
 import { glob } from "glob";
-import { isPathWithinRoot, extractFrontmatter } from "../lib/article";
+import { isPathWithinRoot } from "../lib/article";
 import { validateUniqueSlugs } from "../lib/frontmatter";
 import {
   parseArticlePath,
@@ -53,9 +53,20 @@ export function serveArticlesPlugin(): Plugin {
           }
 
           if (fs.existsSync(resolvedPath)) {
-            const raw = fs.readFileSync(resolvedPath, "utf-8");
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(extractFrontmatter(raw, mdPath), null, 2));
+            // Same validation as the build, so dev and build agree.
+            const parsed = parseArticlePath(mdPath);
+            if (!parsed) {
+              next();
+              return;
+            }
+            try {
+              const { frontmatter } = loadArticle(articleRoot, mdPath, parsed);
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(frontmatter, null, 2));
+            } catch (error) {
+              res.statusCode = 500;
+              res.end((error as Error).message);
+            }
             return;
           }
         }

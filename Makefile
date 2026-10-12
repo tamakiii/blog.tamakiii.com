@@ -1,7 +1,8 @@
 .PHONY: help build dev test test-watch preview new clean
 
 LOCALES := $(notdir $(wildcard article/*))
-ARTICLES := $(shell find article -type f)
+# Directories too, so deleting an article (which bumps its directory mtime) is noticed.
+ARTICLES := $(shell find article)
 SOURCES := $(shell find src -type f) index.html vite.config.ts tsconfig.json
 
 LOCALE ?= en_US
@@ -24,8 +25,12 @@ preview: build
 	npx vite preview
 
 # Usage: make new SLUG=my-post [LOCALE=ja_JP] [TITLE="My post"]
+# Values travel through the environment, so the shell never parses them.
+new: export NEW_LOCALE := $(LOCALE)
+new: export NEW_SLUG := $(SLUG)
+new: export NEW_TITLE := $(TITLE)
 new: node_modules
-	npx tsx src/node/cli/new-article.ts --locale "$(LOCALE)" --slug "$(SLUG)" --title "$(TITLE)"
+	npx tsx src/node/cli/new-article.ts
 
 clean:
 	rm -rf docs node_modules

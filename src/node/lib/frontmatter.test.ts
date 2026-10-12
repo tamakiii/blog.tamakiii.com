@@ -36,6 +36,16 @@ describe('validateFrontmatter', () => {
     expect(result).toEqual({ title: 'Hello', date: '2026-01-03' })
   })
 
+  it('rejects calendar-invalid dates', () => {
+    for (const date of ['2026-13-45', '2026-13-01', '2026-02-30', '2025-02-29', '2026-00-10']) {
+      expect(() => validateFrontmatter({ title: 'T', date }, FILE)).toThrow('`date`')
+    }
+  })
+
+  it('accepts a leap day', () => {
+    expect(validateFrontmatter({ title: 'T', date: '2024-02-29' }, FILE).date).toBe('2024-02-29')
+  })
+
   it('throws a FrontmatterError naming the file', () => {
     expect(() => validateFrontmatter({}, FILE)).toThrow(FrontmatterError)
     expect(() => validateFrontmatter({}, FILE)).toThrow(`${FILE}: `)
