@@ -1,7 +1,7 @@
 import path from "path";
 import matter from "gray-matter";
 import type { ArticleFrontmatter } from "@shared/article";
-import { validateFrontmatter } from "./frontmatter";
+import { validateFrontmatter } from "./frontmatter.ts";
 
 /**
  * Check if a resolved path is within the allowed root directory.

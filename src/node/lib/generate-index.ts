@@ -7,8 +7,8 @@ import type {
   ArticleIndexEntry,
   ArticleIndex,
 } from "@shared/article";
-import { extractFrontmatter } from "./article";
-import { validateDateMatchesPath, validateUniqueSlugs } from "./frontmatter";
+import { extractFrontmatter } from "./article.ts";
+import { validateDateMatchesPath, validateUniqueSlugs } from "./frontmatter.ts";
 
 // Re-export types for convenience
 export type { ArticleFrontmatter, ParsedArticlePath, ArticleIndexEntry, ArticleIndex };
