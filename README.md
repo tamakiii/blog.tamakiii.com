@@ -35,6 +35,19 @@ Body in GitHub-flavored Markdown.
 
 `date` is a quoted `YYYY-MM-DD` string. `title` is required and the build rejects an article without one; missing `tags` or `description` are treated as empty.
 
+The page renders `title` as its only `<h1>`, so the body starts at `##`. A `#` heading at the very start of the body duplicates the title and is dropped; any other `#` heading renders as `<h2>`. Headings from `##` down get an `id` derived from their text and a `#` link to themselves. Links to other sites open in a new tab.
+
+Fenced code blocks that name a language, as in ` ```ts `, are highlighted when the page is rendered. The languages available are listed in `src/browser/lib/markdown-plugins.ts`; a block naming another language, or none, renders as plain code.
+
+Images and other files an article uses live in a directory named after the article's slug, next to its Markdown file:
+
+```
+article/en_US/2026/01-03/hello.md
+article/en_US/2026/01-03/hello/diagram.png
+```
+
+The body refers to them by relative URL, as in `![Diagram](./diagram.png)`. A relative URL in an article resolves against the article's directory URL, `/en_US/2026/01-03/hello/`, which is where the build copies that directory. The rendered page holds the resolved site path, so a relative URL means the same on the dev server, which serves the page without a trailing slash, as on the deployed site, which serves it with one. The dev server serves AVIF, GIF, JPEG, PNG, SVG, and WebP files from `article/`.
+
 ## Local development
 
 ```bash

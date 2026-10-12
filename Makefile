@@ -3,7 +3,7 @@
 LOCALES := $(notdir $(wildcard article/*))
 # Directories too, so deleting an article (which bumps its directory mtime) is noticed.
 ARTICLES := $(shell find article)
-SOURCES := $(shell find src -type f) index.html vite.config.ts tsconfig.json
+SOURCES := $(shell find src public -type f) index.html vite.config.ts tsconfig.json
 
 LOCALE ?= en_US
 

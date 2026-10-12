@@ -41,6 +41,14 @@ export function parseArticlePath(file: string): ParsedArticlePath | null {
 }
 
 /**
+ * Markdown files under `articleDir`, relative to it, in code-point order.
+ * glob returns files in filesystem order, which varies between machines and runs; sorting keeps index.json, the tag lists, and sitemap.xml byte-identical across rebuilds.
+ */
+export function listArticleFiles(articleDir: string): string[] {
+  return glob.sync("**/*.md", { cwd: articleDir }).sort();
+}
+
+/**
  * Build an article index entry from parsed path and validated frontmatter.
  */
 export function buildArticleEntry(
@@ -113,9 +121,7 @@ export async function generateIndex(
   const articles: ArticleIndexEntry[] = [];
   const frontmatters: { file: string; frontmatter: ArticleFrontmatter }[] = [];
 
-  const files = await glob("**/*.md", { cwd: articleDir });
-
-  for (const file of files) {
+  for (const file of listArticleFiles(articleDir)) {
     const parsed = parseArticlePath(file);
     if (!parsed) {
       console.warn(`Skipping ${file}: unexpected path structure`);

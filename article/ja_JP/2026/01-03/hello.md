@@ -7,6 +7,4 @@ tags:
 description: "これはテスト記事です"
 ---
 
-# Hello (ja_JP)
-
 こんにちは。これはテスト記事です。
