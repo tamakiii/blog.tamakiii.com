@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { tagPath } from "../../shared/site";
 
 interface TagLinkProps {
   tag: string;
@@ -6,7 +7,7 @@ interface TagLinkProps {
 
 export default function TagLink({ tag }: TagLinkProps) {
   return (
-    <Link to={`/tags/${encodeURIComponent(tag)}`} className="tag">
+    <Link to={tagPath(tag)} className="tag">
       {tag}
     </Link>
   );

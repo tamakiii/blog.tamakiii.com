@@ -1,4 +1,5 @@
 import type { ArticleIndexEntry, ArticleIndex } from "@shared/article";
+import { findTags } from "../../shared/article-index";
 
 /**
  * Filter articles by locale.
@@ -14,7 +15,7 @@ export function filterByLocale(
 }
 
 /**
- * Filter articles by tag.
+ * Filter articles by tag, matching every tag name that shares the slug of `tag`.
  */
 export function filterByTag(
   articles: ArticleIndexEntry[],
@@ -24,8 +25,8 @@ export function filterByTag(
   if (!tag) {
     return articles;
   }
-  const articlePaths = tags[tag] || [];
-  return articles.filter((a) => articlePaths.includes(a.path));
+  const articlePaths = new Set(findTags(tags, tag).flatMap((name) => tags[name]));
+  return articles.filter((a) => articlePaths.has(a.path));
 }
 
 /**

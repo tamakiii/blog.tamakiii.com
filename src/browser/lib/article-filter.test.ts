@@ -181,3 +181,16 @@ describe('filterAndSortArticles', () => {
     expect(result[0].path).toBe('/en_US/2026/01-01/a')
   })
 })
+
+describe('filterByTag with slugs', () => {
+  it('matches articles of every tag sharing the slug', () => {
+    const articles = [
+      createArticle({ path: '/a' }),
+      createArticle({ path: '/b' }),
+      createArticle({ path: '/c' }),
+    ]
+    const tags = { 'Web Dev': ['/a'], 'web dev': ['/b'] }
+
+    expect(filterByTag(articles, tags, 'web-dev').map((a) => a.path)).toEqual(['/a', '/b'])
+  })
+})
