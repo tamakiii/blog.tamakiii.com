@@ -1,6 +1,6 @@
-import path from "path";
-import matter from "gray-matter";
+import path from "node:path";
 import type { ArticleFrontmatter } from "@shared/article";
+import matter from "gray-matter";
 import { validateFrontmatter } from "./frontmatter.ts";
 
 /**
@@ -15,7 +15,10 @@ export function isPathWithinRoot(resolvedPath: string, root: string): boolean {
  * Extract and validate frontmatter from raw markdown content using gray-matter.
  * Throws a FrontmatterError naming `file` when a field breaks a rule.
  */
-export function extractFrontmatter(raw: string, file: string): ArticleFrontmatter {
+export function extractFrontmatter(
+  raw: string,
+  file: string,
+): ArticleFrontmatter {
   const { data } = matter(raw);
   return validateFrontmatter(data, file);
 }

@@ -21,9 +21,16 @@ function pad(n: number): string {
  * Build the path and initial content of a new article, dated by the local
  * calendar day of `now`.
  */
-export function buildScaffold({ locale, slug, title, now }: ScaffoldOptions): Scaffold {
+export function buildScaffold({
+  locale,
+  slug,
+  title,
+  now,
+}: ScaffoldOptions): Scaffold {
   if (!SLUG_PATTERN.test(slug)) {
-    throw new Error(`invalid slug "${slug}": use lowercase letters, digits, and hyphens`);
+    throw new Error(
+      `invalid slug "${slug}": use lowercase letters, digits, and hyphens`,
+    );
   }
   if (!LOCALE_PATTERN.test(locale)) {
     throw new Error(`invalid locale "${locale}": expected a form like en_US`);

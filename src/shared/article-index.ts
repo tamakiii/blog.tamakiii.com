@@ -6,7 +6,7 @@ import { tagSlug } from "./site";
  */
 export function findTags(
   tags: Record<string, string[]>,
-  tag: string
+  tag: string,
 ): string[] {
   const slug = tagSlug(tag);
   return Object.keys(tags).filter((name) => tagSlug(name) === slug);

@@ -1,4 +1,4 @@
-import { SITE_AUTHOR, SITE_NAME, absoluteUrl } from "../../shared/site";
+import { absoluteUrl, SITE_AUTHOR, SITE_NAME } from "../../shared/site";
 
 export interface FeedEntry {
   title: string;
@@ -29,9 +29,13 @@ export function toTimestamp(date: string): string {
 }
 
 /** Sort newest first; entries on the same date keep a stable order by URL. */
-export function sortNewestFirst<T extends { date: string; url: string }>(entries: T[]): T[] {
+export function sortNewestFirst<T extends { date: string; url: string }>(
+  entries: T[],
+): T[] {
   return [...entries].sort((a, b) =>
-    a.date === b.date ? a.url.localeCompare(b.url) : b.date.localeCompare(a.date)
+    a.date === b.date
+      ? a.url.localeCompare(b.url)
+      : b.date.localeCompare(a.date),
   );
 }
 
@@ -64,7 +68,7 @@ export function buildAtomFeed(entries: FeedEntry[]): string {
       ...entry.tags.map((tag) => `    <category term="${x(tag)}" />`),
       `    <summary>${x(entry.summary)}</summary>`,
       `    <content type="html">${x(entry.contentHtml)}</content>`,
-      `  </entry>`
+      `  </entry>`,
     );
   }
 

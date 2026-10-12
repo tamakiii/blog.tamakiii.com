@@ -1,14 +1,14 @@
 import { Link, useParams } from "react-router-dom";
-import { useArticleIndex } from "../hooks/useArticleIndex";
-import { useDocumentMeta } from "../hooks/useDocumentMeta";
-import { filterAndSortArticles } from "../lib/article-filter";
 import { findTags, listLocales } from "../../shared/article-index";
 import {
   DEFAULT_LANG,
-  TAGS_HEADING,
   localeToLang,
+  TAGS_HEADING,
   tagHeading,
 } from "../../shared/site";
+import { useArticleIndex } from "../hooks/useArticleIndex";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
+import { filterAndSortArticles } from "../lib/article-filter";
 import NotFound from "./NotFound";
 import TagLink from "./TagLink";
 
@@ -20,7 +20,11 @@ export default function ArticleList({ showTags }: ArticleListProps) {
   const { locale, tag } = useParams();
   const { index, loading, error } = useArticleIndex();
 
-  const unknownLocale = !!(index && locale && !listLocales(index).includes(locale));
+  const unknownLocale = !!(
+    index &&
+    locale &&
+    !listLocales(index).includes(locale)
+  );
   const tagNames = index && tag ? findTags(index.tags, tag) : [];
   const unknownTag = !!(index && tag && tagNames.length === 0);
 
@@ -32,7 +36,7 @@ export default function ArticleList({ showTags }: ArticleListProps) {
       : (locale ?? "");
   useDocumentMeta(
     !index || unknownLocale || unknownTag ? null : heading,
-    locale && !showTags && !tag ? localeToLang(locale) : DEFAULT_LANG
+    locale && !showTags && !tag ? localeToLang(locale) : DEFAULT_LANG,
   );
 
   if (loading) {

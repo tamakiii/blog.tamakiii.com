@@ -1,5 +1,5 @@
-import ReactMarkdown from "react-markdown";
 import type { Article } from "@shared/article";
+import ReactMarkdown from "react-markdown";
 import { articleBaseUrl } from "../../shared/article-url";
 import {
   articleUrlTransform,

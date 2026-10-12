@@ -1,16 +1,16 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Plugin } from "vite";
-import fs from "fs";
-import path from "path";
 import { isPathWithinRoot } from "../lib/article.ts";
 import { validateUniqueSlugs } from "../lib/frontmatter.ts";
-import { resolveArticleAsset } from "./article-assets.ts";
 import {
-  parseArticlePath,
+  type ArticleIndex,
+  buildTagIndex,
   listArticleFiles,
   loadArticle,
-  buildTagIndex,
-  type ArticleIndex,
+  parseArticlePath,
 } from "../lib/generate-index.ts";
+import { resolveArticleAsset } from "./article-assets.ts";
 
 function generateArticleIndex(): ArticleIndex {
   const articleDir = path.join(process.cwd(), "article");

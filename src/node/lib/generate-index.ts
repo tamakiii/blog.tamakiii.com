@@ -1,17 +1,22 @@
-import fs from "fs";
-import path from "path";
-import { glob } from "glob";
+import fs from "node:fs";
+import path from "node:path";
 import type {
   ArticleFrontmatter,
-  ParsedArticlePath,
-  ArticleIndexEntry,
   ArticleIndex,
+  ArticleIndexEntry,
+  ParsedArticlePath,
 } from "@shared/article";
+import { glob } from "glob";
 import { extractFrontmatter } from "./article.ts";
 import { validateDateMatchesPath, validateUniqueSlugs } from "./frontmatter.ts";
 
 // Re-export types for convenience
-export type { ArticleFrontmatter, ParsedArticlePath, ArticleIndexEntry, ArticleIndex };
+export type {
+  ArticleFrontmatter,
+  ArticleIndex,
+  ArticleIndexEntry,
+  ParsedArticlePath,
+};
 
 export interface GenerateIndexOptions {
   articleDir: string;
@@ -53,7 +58,7 @@ export function listArticleFiles(articleDir: string): string[] {
  */
 export function buildArticleEntry(
   parsed: ParsedArticlePath,
-  data: ArticleFrontmatter
+  data: ArticleFrontmatter,
 ): ArticleIndexEntry {
   const { locale, year, date, slug } = parsed;
   const articlePath = `/${locale}/${year}/${date}/${slug}`;
@@ -79,7 +84,7 @@ export function buildArticleEntry(
  * Build tag index from articles.
  */
 export function buildTagIndex(
-  articles: ArticleIndexEntry[]
+  articles: ArticleIndexEntry[],
 ): Record<string, string[]> {
   const tags: Record<string, string[]> = {};
 
@@ -102,7 +107,7 @@ export function buildTagIndex(
 export function loadArticle(
   articleDir: string,
   file: string,
-  parsed: ParsedArticlePath
+  parsed: ParsedArticlePath,
 ): { entry: ArticleIndexEntry; frontmatter: ArticleFrontmatter } {
   const raw = fs.readFileSync(path.join(articleDir, file), "utf-8");
   const frontmatter = extractFrontmatter(raw, file);
@@ -115,7 +120,7 @@ export function loadArticle(
  * Throws a FrontmatterError when any article breaks a frontmatter rule.
  */
 export async function generateIndex(
-  options: GenerateIndexOptions
+  options: GenerateIndexOptions,
 ): Promise<GenerateIndexResult> {
   const { articleDir, outputDir } = options;
   const articles: ArticleIndexEntry[] = [];

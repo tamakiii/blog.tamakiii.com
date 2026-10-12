@@ -1,7 +1,7 @@
-import { Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import ArticleRenderer from "./components/ArticleRenderer";
+import { Route, Routes } from "react-router-dom";
 import ArticleList from "./components/ArticleList";
+import ArticleRenderer from "./components/ArticleRenderer";
+import Layout from "./components/Layout";
 import NotFound from "./components/NotFound";
 
 function App() {

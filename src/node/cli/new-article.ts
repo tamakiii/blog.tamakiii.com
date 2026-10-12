@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { parseArgs } from "util";
+import fs from "node:fs";
+import path from "node:path";
+import { parseArgs } from "node:util";
 import { buildScaffold } from "./scaffold";
 
 // `make new` passes its values through NEW_* environment variables so that
@@ -15,7 +15,9 @@ const { values } = parseArgs({
 
 try {
   if (!values.slug) {
-    throw new Error("SLUG is required: make new SLUG=<slug> [LOCALE=en_US] [TITLE=\"...\"]");
+    throw new Error(
+      'SLUG is required: make new SLUG=<slug> [LOCALE=en_US] [TITLE="..."]',
+    );
   }
   const scaffold = buildScaffold({
     locale: values.locale,
@@ -28,9 +30,10 @@ try {
   fs.writeFileSync(scaffold.path, scaffold.content, { flag: "wx" });
   console.log(scaffold.path);
 } catch (error) {
-  const message = (error as NodeJS.ErrnoException).code === "EEXIST"
-    ? `refusing to overwrite existing article: ${(error as NodeJS.ErrnoException).path}`
-    : (error as Error).message;
+  const message =
+    (error as NodeJS.ErrnoException).code === "EEXIST"
+      ? `refusing to overwrite existing article: ${(error as NodeJS.ErrnoException).path}`
+      : (error as Error).message;
   console.error(message);
   process.exit(1);
 }

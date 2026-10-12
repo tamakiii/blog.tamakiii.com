@@ -1,8 +1,4 @@
-import { defaultUrlTransform, type Options } from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeExternalLinks from "rehype-external-links";
-import rehypeSlug from "rehype-slug";
+import type { Element } from "hast";
 import bash from "highlight.js/lib/languages/bash";
 import css from "highlight.js/lib/languages/css";
 import diff from "highlight.js/lib/languages/diff";
@@ -20,7 +16,11 @@ import sql from "highlight.js/lib/languages/sql";
 import typescript from "highlight.js/lib/languages/typescript";
 import xml from "highlight.js/lib/languages/xml";
 import yaml from "highlight.js/lib/languages/yaml";
-import type { Element } from "hast";
+import { defaultUrlTransform, type Options } from "react-markdown";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeExternalLinks from "rehype-external-links";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 import { resolveArticleUrl } from "../../shared/article-url";
 import { SITE_ORIGIN } from "../../shared/site";
 import rehypeCodeHighlight from "./rehype-code-highlight";
@@ -32,8 +32,23 @@ import rehypeTitleHeading from "./rehype-title-heading";
  * Each one adds to the client bundle, so the list is kept to languages this blog is likely to use; a block naming another language renders as plain code.
  */
 const HIGHLIGHT_LANGUAGES = {
-  bash, css, diff, dockerfile, go, ini, javascript, json, makefile, markdown,
-  python, rust, shell, sql, typescript, xml, yaml,
+  bash,
+  css,
+  diff,
+  dockerfile,
+  go,
+  ini,
+  javascript,
+  json,
+  makefile,
+  markdown,
+  python,
+  rust,
+  shell,
+  sql,
+  typescript,
+  xml,
+  yaml,
 };
 
 export const remarkPlugins: Options["remarkPlugins"] = [remarkGfm];
@@ -47,7 +62,10 @@ export const rehypePlugins: Options["rehypePlugins"] = [
     {
       behavior: "append",
       test: ["h2", "h3", "h4", "h5", "h6"],
-      properties: { className: ["heading-anchor"], ariaLabel: "Link to this section" },
+      properties: {
+        className: ["heading-anchor"],
+        ariaLabel: "Link to this section",
+      },
       content: { type: "text", value: "#" },
     },
   ],
@@ -57,7 +75,8 @@ export const rehypePlugins: Options["rehypePlugins"] = [
       target: "_blank",
       rel: ["noopener", "noreferrer"],
       // Absolute links back to this site stay in the same tab.
-      test: (element: Element) => !String(element.properties.href ?? "").startsWith(`${SITE_ORIGIN}/`),
+      test: (element: Element) =>
+        !String(element.properties.href ?? "").startsWith(`${SITE_ORIGIN}/`),
     },
   ],
   // Only fenced blocks that name a language are highlighted; guessing would be slower and less predictable.
@@ -65,6 +84,8 @@ export const rehypePlugins: Options["rehypePlugins"] = [
 ];
 
 /** react-markdown URL transform that resolves relative links and images against the article's directory URL. */
-export function articleUrlTransform(baseUrl: string): NonNullable<Options["urlTransform"]> {
+export function articleUrlTransform(
+  baseUrl: string,
+): NonNullable<Options["urlTransform"]> {
   return (url) => defaultUrlTransform(resolveArticleUrl(url, baseUrl));
 }

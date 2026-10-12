@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { isPathWithinRoot } from "../lib/article.ts";
 
 /** Content types of the files the dev server serves from article/ besides Markdown, by lowercase extension. */
@@ -22,7 +22,10 @@ export type ArticleAsset =
  * Returns `none` for URLs that are not asset requests, and `invalid` for paths that escape the root or cannot be decoded.
  * Whether the file exists is left to the caller.
  */
-export function resolveArticleAsset(url: string, articleRoot: string): ArticleAsset {
+export function resolveArticleAsset(
+  url: string,
+  articleRoot: string,
+): ArticleAsset {
   const pathname = url.split(/[?#]/)[0];
   const contentType = ARTICLE_ASSET_TYPES[path.extname(pathname).toLowerCase()];
   if (!contentType) {

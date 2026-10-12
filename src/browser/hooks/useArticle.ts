@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from "react";
 import type { Article, ArticleFrontmatter } from "@shared/article";
+import { useContext, useEffect, useState } from "react";
 import { normalizePath, stripFrontmatter } from "../../shared/markdown";
 import { PreloadedArticleContext } from "../lib/preloaded-article";
 

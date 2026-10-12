@@ -6,7 +6,7 @@ import {
 
 /** The article embedded in the page by the build, or null on pages without one. */
 export const PreloadedArticleContext = createContext<PreloadedArticle | null>(
-  null
+  null,
 );
 
 /** Read the article the build embedded in this document, if any. */
