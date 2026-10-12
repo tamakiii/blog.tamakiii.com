@@ -3,3 +3,6 @@
 /.vite/
 **/.terraform/
 **/terraform.tfplan
+/.claude/worktrees/
+*.tsbuildinfo
+.DS_Store

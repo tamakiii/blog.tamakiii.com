@@ -1,45 +1,49 @@
-.PHONY: help build clean test preview
+.PHONY: help build dev test test-watch preview new clean
+
+LOCALES := $(notdir $(wildcard article/*))
+ARTICLES := $(shell find article -type f)
+SOURCES := $(shell find src -type f) index.html vite.config.ts tsconfig.json
+
+LOCALE ?= en_US
 
 help:
 	@cat $(firstword $(MAKEFILE_LIST))
 
-build: \
-	node_modules \
-	docs \
-	docs/en_US \
-	docs/ja_JP \
-	docs/index.json \
-	docs/tags \
-	docs/CNAME
+build: docs/.stamp
 
-clean: ## Clean build artifacts
-	rm -rf docs node_modules
+dev: node_modules
+	npx vite
 
-test:
+test: node_modules
 	npx --no vitest run
 
-preview: build ## Preview production build
+test-watch: node_modules
+	npx --no vitest
+
+preview: build
 	npx vite preview
+
+# Usage: make new SLUG=my-post [LOCALE=ja_JP] [TITLE="My post"]
+new: node_modules
+	npx tsx src/node/cli/new-article.ts --locale "$(LOCALE)" --slug "$(SLUG)" --title "$(TITLE)"
+
+clean:
+	rm -rf docs node_modules
 
 node_modules: package.json package-lock.json
 	npm ci
 	touch $@
 
-docs: node_modules
+# vite build empties docs/, so everything copied or generated into docs/
+# happens in the stamp rule below, which reruns after every app rebuild.
+docs/index.html: node_modules $(SOURCES)
 	npx tsc
 	npx vite build
 
-docs/en_US: article/en_US | docs
-	cp -r $< $|
-
-docs/ja_JP: article/ja_JP | docs
-	cp -r $< $|
-
-docs/index.json: docs/en_US docs/ja_JP
+docs/.stamp: docs/index.html CNAME $(ARTICLES)
+	rm -rf $(addprefix docs/,$(LOCALES) tags)
+	cp -r $(addprefix article/,$(LOCALES)) docs/
+	cp CNAME docs/CNAME
 	npx tsx src/node/cli/generate-index.ts
-
-docs/tags: docs/index.json
 	npx tsx src/node/cli/generate-pages.ts
-
-docs/CNAME: CNAME | docs
-	cp $< $@
+	touch $@
