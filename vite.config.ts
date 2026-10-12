@@ -1,15 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { serveArticlesPlugin } from "./src/node/vite/serve-articles";
+import { serveArticlesPlugin } from "./src/node/vite/serve-articles.ts";
 
 export default defineConfig({
   plugins: [react(), serveArticlesPlugin()],
   resolve: {
     alias: {
-      "@shared": path.resolve(__dirname, "src/shared"),
-      "@browser": path.resolve(__dirname, "src/browser"),
-      "@node": path.resolve(__dirname, "src/node"),
+      "@shared": path.resolve(import.meta.dirname, "src/shared"),
+      "@browser": path.resolve(import.meta.dirname, "src/browser"),
+      "@node": path.resolve(import.meta.dirname, "src/node"),
     },
   },
   base: "/",
