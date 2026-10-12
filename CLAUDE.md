@@ -41,7 +41,8 @@ Locales are the directories under `article/`; the Makefile derives them, so addi
 - `/{locale}` - Article list for one locale
 - `/{locale}/{year}/{mm-dd}/{slug}` - Article page (e.g., `/en_US/2026/01-03/hello`)
 - `/tags` - Tag list
-- `/tags/{tag}` - Articles by tag
+- `/tags/{tag-slug}` - Articles by tag (slug from `tagSlug` in `src/shared/site.ts`)
+- `/feed.xml`, `/sitemap.xml`, `/robots.txt`, `/404.html` - Generated at build time
 
 ## Article Format
 

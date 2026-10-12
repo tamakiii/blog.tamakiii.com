@@ -4,6 +4,8 @@ import {
   filterByTag,
   sortByDateDesc,
   filterAndSortArticles,
+  findTags,
+  listLocales,
 } from './article-filter'
 import type { ArticleIndexEntry, ArticleIndex } from '@shared/article'
 
@@ -179,5 +181,50 @@ describe('filterAndSortArticles', () => {
 
     expect(result).toHaveLength(1)
     expect(result[0].path).toBe('/en_US/2026/01-01/a')
+  })
+})
+
+describe('findTags', () => {
+  const tags: Record<string, string[]> = {
+    'Web Dev': ['/a'],
+    'web dev': ['/b'],
+    other: ['/c'],
+  }
+
+  it('finds every tag name that shares a slug', () => {
+    expect(findTags(tags, 'web-dev')).toEqual(['Web Dev', 'web dev'])
+    expect(findTags(tags, 'Web Dev')).toEqual(['Web Dev', 'web dev'])
+  })
+
+  it('returns an empty list for an unknown tag', () => {
+    expect(findTags(tags, 'missing')).toEqual([])
+  })
+})
+
+describe('filterByTag with slugs', () => {
+  it('matches articles of every tag sharing the slug', () => {
+    const articles = [
+      createArticle({ path: '/a' }),
+      createArticle({ path: '/b' }),
+      createArticle({ path: '/c' }),
+    ]
+    const tags = { 'Web Dev': ['/a'], 'web dev': ['/b'] }
+
+    expect(filterByTag(articles, tags, 'web-dev').map((a) => a.path)).toEqual(['/a', '/b'])
+  })
+})
+
+describe('listLocales', () => {
+  it('lists unique locales in sorted order', () => {
+    const index: ArticleIndex = {
+      articles: [
+        createArticle({ path: '/ja_JP/x', locale: 'ja_JP' }),
+        createArticle({ path: '/en_US/y', locale: 'en_US' }),
+        createArticle({ path: '/ja_JP/z', locale: 'ja_JP' }),
+      ],
+      tags: {},
+    }
+
+    expect(listLocales(index)).toEqual(['en_US', 'ja_JP'])
   })
 })

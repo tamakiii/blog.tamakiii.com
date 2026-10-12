@@ -1,6 +1,11 @@
 import { Link, useParams } from "react-router-dom";
 import { useArticleIndex } from "../hooks/useArticleIndex";
-import { filterAndSortArticles } from "../lib/article-filter";
+import {
+  filterAndSortArticles,
+  findTags,
+  listLocales,
+} from "../lib/article-filter";
+import NotFound from "./NotFound";
 import TagLink from "./TagLink";
 
 interface ArticleListProps {
@@ -34,12 +39,25 @@ export default function ArticleList({ showTags }: ArticleListProps) {
     );
   }
 
+  if (locale && !listLocales(index).includes(locale)) {
+    return <NotFound />;
+  }
+
+  const tagNames = tag ? findTags(index.tags, tag) : [];
+  if (tag && tagNames.length === 0) {
+    return <NotFound />;
+  }
+
   const articles = filterAndSortArticles(index, locale, tag);
 
   return (
     <div className="article-list">
       <h1>
-        {tag ? `Articles tagged "${tag}"` : locale ? `${locale}` : "Articles"}
+        {tag
+          ? `Articles tagged "${tagNames[0]}"`
+          : locale
+            ? `${locale}`
+            : "Articles"}
       </h1>
       {articles.length === 0 ? (
         <p>No articles found.</p>

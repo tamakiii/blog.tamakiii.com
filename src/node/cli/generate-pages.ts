@@ -1,82 +1,64 @@
 import fs from "fs";
 import path from "path";
-import { glob } from "glob";
+import type { ArticleIndex } from "@shared/article";
+import { stripFrontmatter } from "@shared/markdown";
+import { renderPage } from "@node/lib/head";
+import { buildAtomFeed } from "@node/lib/feed";
+import { buildRobots, buildSitemap } from "@node/lib/sitemap";
+import { renderArticleBody, renderArticlePage } from "@node/lib/prerender";
+import {
+  feedEntries,
+  planPages,
+  preloadFor,
+  sitemapUrls,
+  type RenderedArticle,
+} from "@node/lib/generate-pages";
 
 const ARTICLE_DIR = "./article";
 const DOCS_DIR = "./docs";
 const INDEX_HTML = path.join(DOCS_DIR, "index.html");
+const INDEX_JSON = path.join(DOCS_DIR, "index.json");
 
-async function generatePages() {
-  // Check that index.html exists (should be created by vite build)
-  if (!fs.existsSync(INDEX_HTML)) {
-    throw new Error(
-      `${INDEX_HTML} not found. Run 'npm run build' first.`
-    );
-  }
-
-  const indexHtml = fs.readFileSync(INDEX_HTML, "utf-8");
-
-  // Find all markdown files
-  const files = await glob("**/*.md", { cwd: ARTICLE_DIR });
-
-  let count = 0;
-
-  for (const file of files) {
-    // Parse path: {locale}/{year}/{date}/{slug}.md
-    const parts = file.split("/");
-    if (parts.length !== 4) {
-      console.warn(`Skipping ${file}: unexpected path structure`);
-      continue;
-    }
-
-    const [locale, year, date, filename] = parts;
-    const slug = filename.replace(".md", "");
-
-    // Create directory structure: docs/{locale}/{year}/{date}/{slug}/
-    const pageDir = path.join(DOCS_DIR, locale, year, date, slug);
-    fs.mkdirSync(pageDir, { recursive: true });
-
-    // Copy index.html to this directory
-    const pagePath = path.join(pageDir, "index.html");
-    fs.writeFileSync(pagePath, indexHtml);
-
-    count++;
-  }
-
-  console.log(`Generated ${count} article pages`);
-}
-
-async function generateTagPages() {
-  const indexPath = path.join(DOCS_DIR, "index.json");
-
-  if (!fs.existsSync(indexPath)) {
-    console.warn("Article index not found, skipping tag pages");
-    return;
-  }
-
-  const indexHtml = fs.readFileSync(INDEX_HTML, "utf-8");
-  const index = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
-
-  // Create /tags/ page
-  const tagsDir = path.join(DOCS_DIR, "tags");
-  fs.mkdirSync(tagsDir, { recursive: true });
-  fs.writeFileSync(path.join(tagsDir, "index.html"), indexHtml);
-
-  // Create /tags/{tag}/ pages
-  for (const tag of Object.keys(index.tags)) {
-    const tagDir = path.join(tagsDir, tag);
-    fs.mkdirSync(tagDir, { recursive: true });
-    fs.writeFileSync(path.join(tagDir, "index.html"), indexHtml);
-  }
-
-  console.log(`Generated tag pages for ${Object.keys(index.tags).length} tags`);
+function write(file: string, content: string) {
+  const target = path.join(DOCS_DIR, file);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, content);
 }
 
 async function main() {
-  console.log("Generating article pages...");
-  await generatePages();
-  await generateTagPages();
-  console.log("Done!");
+  console.log("Generating pages...");
+
+  for (const required of [INDEX_HTML, INDEX_JSON]) {
+    if (!fs.existsSync(required)) {
+      throw new Error(`${required} not found. Run 'make build'.`);
+    }
+  }
+
+  // docs/index.html is the Vite-built shell; renderPage replaces what an earlier run injected, so it is safe to reuse after this script has overwritten it.
+  const shell = fs.readFileSync(INDEX_HTML, "utf-8");
+  const index = JSON.parse(fs.readFileSync(INDEX_JSON, "utf-8")) as ArticleIndex;
+
+  const articles: RenderedArticle[] = index.articles.map((entry) => {
+    const raw = fs.readFileSync(path.join(ARTICLE_DIR, `${entry.path}.md`), "utf-8");
+    const content = stripFrontmatter(raw);
+    return {
+      entry,
+      content,
+      bodyHtml: renderArticleBody(content),
+      rootHtml: renderArticlePage(preloadFor({ entry, content })),
+    };
+  });
+
+  const pages = planPages(index, articles);
+  for (const { file, page } of pages) {
+    write(file, renderPage(shell, page));
+  }
+  console.log(`Generated ${pages.length} HTML pages (${articles.length} articles)`);
+
+  write("feed.xml", buildAtomFeed(feedEntries(articles)));
+  write("sitemap.xml", buildSitemap(sitemapUrls(index)));
+  write("robots.txt", buildRobots());
+  console.log("Generated feed.xml, sitemap.xml, robots.txt");
 }
 
 main().catch((error: unknown) => {

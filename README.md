@@ -46,6 +46,8 @@ make test-watch  # Unit tests in watch mode
 make clean       # Remove docs/ and node_modules/
 ```
 
+`make build` writes one HTML page per article, locale, and tag, each with its own title, description, canonical URL, and Open Graph tags; article pages also carry the rendered article, which the app hydrates. It also writes `feed.xml` (Atom), `sitemap.xml`, `robots.txt`, and `404.html`. The site origin used in these is `SITE_ORIGIN` in `src/shared/site.ts`.
+
 `make build` is incremental: it rebuilds the app when anything under `src/` or the build configuration changes, and recopies articles when anything under `article/` changes.
 
 ## Deployment
