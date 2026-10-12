@@ -37,6 +37,7 @@ make dev         # Start Vite dev server
 make preview     # Build, then serve docs/
 make test        # Run unit tests once (Vitest)
 make test-watch  # Run unit tests in watch mode
+make lint        # Lint and format check (Biome); make lint-fix applies fixes
 make new SLUG=my-post [LOCALE=en_US] [TITLE="..."]  # Scaffold an article dated today
 make clean       # Remove docs/ and node_modules/
 ```
