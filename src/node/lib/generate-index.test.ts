@@ -72,26 +72,14 @@ describe('buildArticleEntry', () => {
     })
   })
 
-  it('uses slug as title when title is missing', () => {
-    const result = buildArticleEntry(parsed, {})
-
-    expect(result.frontmatter.title).toBe('hello')
-  })
-
-  it('builds date from path when date is missing', () => {
-    const result = buildArticleEntry(parsed, {})
-
-    expect(result.frontmatter.date).toBe('2026-01-03')
-  })
-
   it('defaults to empty tags array', () => {
-    const result = buildArticleEntry(parsed, {})
+    const result = buildArticleEntry(parsed, { title: 'Hello', date: '2026-01-03' })
 
     expect(result.frontmatter.tags).toEqual([])
   })
 
   it('defaults to empty description', () => {
-    const result = buildArticleEntry(parsed, {})
+    const result = buildArticleEntry(parsed, { title: 'Hello', date: '2026-01-03' })
 
     expect(result.frontmatter.description).toBe('')
   })

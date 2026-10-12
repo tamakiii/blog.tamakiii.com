@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
 import { glob } from "glob";
 import type {
   ArticleFrontmatter,
@@ -8,6 +7,8 @@ import type {
   ArticleIndexEntry,
   ArticleIndex,
 } from "@shared/article";
+import { extractFrontmatter } from "./article";
+import { validateDateMatchesPath, validateUniqueSlugs } from "./frontmatter";
 
 // Re-export types for convenience
 export type { ArticleFrontmatter, ParsedArticlePath, ArticleIndexEntry, ArticleIndex };
@@ -40,20 +41,20 @@ export function parseArticlePath(file: string): ParsedArticlePath | null {
 }
 
 /**
- * Build an article index entry from parsed path and frontmatter data.
+ * Build an article index entry from parsed path and validated frontmatter.
  */
 export function buildArticleEntry(
   parsed: ParsedArticlePath,
-  data: ArticleFrontmatter | Record<string, unknown>
+  data: ArticleFrontmatter
 ): ArticleIndexEntry {
   const { locale, year, date, slug } = parsed;
   const articlePath = `/${locale}/${year}/${date}/${slug}`;
 
   const frontmatter: ArticleFrontmatter = {
-    title: (data.title as string) || slug,
-    date: (data.date as string) || `${year}-${date}`,
-    tags: (data.tags as string[]) || [],
-    description: (data.description as string) || "",
+    title: data.title,
+    date: data.date,
+    tags: data.tags ?? [],
+    description: data.description ?? "",
   };
 
   return {
@@ -87,13 +88,30 @@ export function buildTagIndex(
 }
 
 /**
+ * Read and validate one article, returning its index entry and its frontmatter.
+ * Throws a FrontmatterError naming the file when a rule is broken.
+ */
+export function loadArticle(
+  articleDir: string,
+  file: string,
+  parsed: ParsedArticlePath
+): { entry: ArticleIndexEntry; frontmatter: ArticleFrontmatter } {
+  const raw = fs.readFileSync(path.join(articleDir, file), "utf-8");
+  const frontmatter = extractFrontmatter(raw, file);
+  validateDateMatchesPath(frontmatter, parsed, file);
+  return { entry: buildArticleEntry(parsed, frontmatter), frontmatter };
+}
+
+/**
  * Generate article index and individual frontmatter JSON files.
+ * Throws a FrontmatterError when any article breaks a frontmatter rule.
  */
 export async function generateIndex(
   options: GenerateIndexOptions
 ): Promise<GenerateIndexResult> {
   const { articleDir, outputDir } = options;
   const articles: ArticleIndexEntry[] = [];
+  const frontmatters: { file: string; frontmatter: ArticleFrontmatter }[] = [];
 
   const files = await glob("**/*.md", { cwd: articleDir });
 
@@ -104,25 +122,18 @@ export async function generateIndex(
       continue;
     }
 
-    const filePath = path.join(articleDir, file);
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const { data } = matter(raw);
-
-    const entry = buildArticleEntry(parsed, data);
+    const { entry, frontmatter } = loadArticle(articleDir, file, parsed);
     articles.push(entry);
+    frontmatters.push({ file, frontmatter });
+  }
 
-    // Generate individual JSON file for frontmatter
-    const jsonPath = file.replace(/\.md$/, ".json");
-    const jsonOutputPath = path.join(outputDir, jsonPath);
-    const jsonData: ArticleFrontmatter = {
-      title: (data.title as string) || "",
-      date: (data.date as string) || "",
-      tags: data.tags as string[] | undefined,
-      description: data.description as string | undefined,
-    };
+  validateUniqueSlugs(articles);
 
+  // Write per-article frontmatter JSON only after every article has passed validation
+  for (const { file, frontmatter } of frontmatters) {
+    const jsonOutputPath = path.join(outputDir, file.replace(/\.md$/, ".json"));
     fs.mkdirSync(path.dirname(jsonOutputPath), { recursive: true });
-    fs.writeFileSync(jsonOutputPath, JSON.stringify(jsonData, null, 2));
+    fs.writeFileSync(jsonOutputPath, JSON.stringify(frontmatter, null, 2));
   }
 
   const tags = buildTagIndex(articles);

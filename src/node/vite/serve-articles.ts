@@ -3,9 +3,10 @@ import fs from "fs";
 import path from "path";
 import { glob } from "glob";
 import { isPathWithinRoot, extractFrontmatter } from "../lib/article";
+import { validateUniqueSlugs } from "../lib/frontmatter";
 import {
   parseArticlePath,
-  buildArticleEntry,
+  loadArticle,
   buildTagIndex,
   type ArticleIndex,
 } from "../lib/generate-index";
@@ -19,11 +20,11 @@ function generateArticleIndex(): ArticleIndex {
       const parsed = parseArticlePath(file);
       if (!parsed) return null;
 
-      const raw = fs.readFileSync(path.join(articleDir, file), "utf-8");
-      const frontmatter = extractFrontmatter(raw);
-      return buildArticleEntry(parsed, frontmatter);
+      return loadArticle(articleDir, file, parsed).entry;
     })
     .filter((entry) => entry !== null);
+
+  validateUniqueSlugs(articles);
 
   return { articles, tags: buildTagIndex(articles) };
 }
@@ -54,7 +55,7 @@ export function serveArticlesPlugin(): Plugin {
           if (fs.existsSync(resolvedPath)) {
             const raw = fs.readFileSync(resolvedPath, "utf-8");
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(extractFrontmatter(raw), null, 2));
+            res.end(JSON.stringify(extractFrontmatter(raw, mdPath), null, 2));
             return;
           }
         }

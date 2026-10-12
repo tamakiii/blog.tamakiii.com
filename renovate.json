@@ -2,5 +2,53 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "packageRules": [
+    {
+      "groupName": "react",
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ]
+    },
+    {
+      "groupName": "vite",
+      "matchPackageNames": [
+        "vite",
+        "vitest",
+        "@vitejs/plugin-react"
+      ]
+    },
+    {
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    }
   ]
 }
